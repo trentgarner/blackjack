@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  game: one
+  status: 1
+  bet: 9.99
+  outcome_message: MyString
+
+two:
+  game: two
+  status: 1
+  bet: 9.99
+  outcome_message: MyString

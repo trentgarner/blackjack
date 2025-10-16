@@ -2,8 +2,12 @@
 
 one:
   name: MyString
-  status: MyString
+  balance: 9.99
+  is_dealer: false
+  game: one
 
 two:
   name: MyString
-  status: MyString
+  balance: 9.99
+  is_dealer: false
+  game: two
