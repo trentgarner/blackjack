@@ -11,5 +11,67 @@
  * It is generally better to create a new file per style scope.
  *
  *= require_tree .
- *= require_self
- */
+*= require_self
+*/
+
+body.app-body {
+  background: #0d3b2e;
+  color: #f8f9fa;
+  min-height: 100vh;
+}
+
+.playing-card {
+  position: relative;
+  width: 110px;
+  height: 160px;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 14px 24px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+}
+
+.playing-card .card-face {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.playing-card .card-corner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+
+.playing-card .card-corner-bottom {
+  transform: rotate(180deg);
+}
+
+.playing-card .card-rank {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.playing-card .card-suit {
+  font-size: 1.1rem;
+}
+
+.playing-card .card-suit-large {
+  font-size: 3.5rem;
+}
+
+.playing-card.suit-hearts,
+.playing-card.suit-diamonds {
+  color: #c92a2a;
+}
+
+.playing-card.suit-clubs,
+.playing-card.suit-spades {
+  color: #101820;
+}

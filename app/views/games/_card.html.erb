@@ -1,0 +1,17 @@
+<% symbol = card_suit_symbol(card) %>
+<% rank_label = card_rank_label(card) %>
+
+<div class="playing-card <%= card_css_class(card) %>">
+  <div class="card-corner card-corner-top">
+    <span class="card-rank"><%= rank_label %></span>
+    <span class="card-suit"><%= symbol %></span>
+  </div>
+
+  <div class="card-face">
+    <span class="card-suit-large"><%= symbol %></span>
+  </div>
+
+  <div class="card-corner card-corner-bottom">
+    <span class="card-suit"><%= symbol %></span>
+  </div>
+</div>

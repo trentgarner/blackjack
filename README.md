@@ -1,24 +1,40 @@
-# README
+## Blackjack Table (Junior Demo)
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+This Rails app shows a very small Blackjack table. You can create a game, add players by name, and hand out two random cards to every player. It is intentionally simple—think of it as a to-do list that stores players instead of tasks.
 
-Things you may want to cover:
+### Requirements
 
-* Ruby version
+- Ruby 3.2+
+- Bundler
+- SQLite (default Rails dev database)
 
-* System dependencies
+### Setup
 
-* Configuration
+```bash
+bundle install
+bin/rails db:setup
+bin/rails server
+```
 
-* Database creation
+Open http://localhost:3000 and click **Create Game**.
 
-* Database initialization
+### How It Works
 
-* How to run the test suite
+1. Create a game from the landing page.
+2. On the game view:
+   - add players with the form,
+   - press **Deal Cards** to randomly give two cards to each player.
 
-* Services (job queues, cache servers, search engines, etc.)
+Cards come from a single 52-card deck that sits on the dealer. Once the deck is empty, start a new game.
 
-* Deployment instructions
+### Tests
 
-* ...
+```bash
+bin/rails test
+```
+
+### Possible Next Steps
+
+- Track win/loss logic and scoring.
+- Allow multiple rounds without recreating the game.
+- Add betting and player balances that change after each round.

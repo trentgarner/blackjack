@@ -1,0 +1,60 @@
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <header class="mb-4 text-center text-white">
+        <h1 class="display-6 mb-1">Blackjack Table</h1>
+        <p class="mb-0">Cards remaining in deck: <strong><%= @deck_count %></strong></p>
+      </header>
+
+      <section class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+          <h2 class="h5 mb-3">Players</h2>
+          <% if @players.any? %>
+            <% @players.each do |player| %>
+              <div class="border rounded-3 p-3 mb-3 bg-body-tertiary">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h3 class="h6 mb-0"><%= player.name %></h3>
+                  <span class="badge text-bg-secondary">
+                    Cards: <%= player.cards.where(in_deck: false).count %>
+                  </span>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                  <% player.cards.where(round: @round, in_deck: false).each do |card| %>
+                    <%= render partial: "card", locals: { card: card } %>
+                  <% end %>
+                  <% if player.cards.where(round: @round, in_deck: false).empty? %>
+                    <p class="text-muted mb-0">No cards yet.</p>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <p class="text-muted mb-0">No players yet. Use the form below to add one.</p>
+          <% end %>
+        </div>
+      </section>
+
+      <section class="card shadow-sm border-0 mb-4">
+        <div class="card-body">
+          <h2 class="h6 mb-3">Add a player</h2>
+          <%= form_with url: add_player_game_path(@game), method: :post, local: true do |form| %>
+            <div class="row g-2 align-items-center">
+              <div class="col-md-8">
+                <%= form.label :player_name, "Player name", class: "form-label mb-1" %>
+                <%= form.text_field :player_name, class: "form-control", placeholder: "Player name" %>
+              </div>
+              <div class="col-md-4 d-grid">
+                <%= form.submit "Add Player", class: "btn btn-secondary mt-3 mt-md-0" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </section>
+
+      <div class="d-flex flex-wrap gap-2 justify-content-center">
+        <%= button_to "Deal Cards", deal_game_path(@game), method: :post, class: "btn btn-success px-4" %>
+        <%= link_to "Start Over", new_game_path, class: "btn btn-outline-light px-4" %>
+      </div>
+    </div>
+  </div>
+</div>

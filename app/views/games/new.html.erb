@@ -1,0 +1,18 @@
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+          <h1 class="h4 text-center mb-2">Start a Blackjack Table</h1>
+          <p class="text-muted text-center mb-4">Create a game, then add players on the next screen.</p>
+
+          <%= form_with model: @game, local: true do |form| %>
+            <div class="d-grid">
+              <%= form.submit "Create Game", class: "btn btn-primary" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
