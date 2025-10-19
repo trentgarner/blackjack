@@ -1,4 +1,4 @@
-## Blackjack Table (Junior Demo)
+## Blackjack Table
 
 This Rails app shows a very small Blackjack table. You can create a game, add players by name, and hand out two random cards to every player.
 
