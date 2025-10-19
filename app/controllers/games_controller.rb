@@ -1,6 +1,6 @@
 class GamesController < ApplicationController
   helper_method :hand_total, :cards_for
-  before_action :set_game, only: %i[show add_player deal hit stand]
+  before_action :set_game, only: %i[show add_player place_bet deal hit stand]
 
   def new
     @game = Game.new
@@ -24,8 +24,38 @@ class GamesController < ApplicationController
 
   def add_player
     name = params[:player_name].presence || default_player_name
-    @game.players.create!(name: name, is_dealer: false, balance: 0, stood: false)
+    @game.players.create!(name: name, is_dealer: false, balance: 500, current_bet: 0, stood: false)
     redirect_to @game
+  end
+
+  def place_bet
+    if @game.status == "player_turn"
+      redirect_to @game, alert: "Can't change bets during an active round."
+      return
+    end
+
+    attrs = bet_params
+    player = @game.players.participants.find_by(id: attrs[:player_id])
+
+    unless player
+      redirect_to @game, alert: "Player not found."
+      return
+    end
+
+    amount = attrs[:amount].to_i
+
+    if amount <= 0
+      redirect_to @game, alert: "Bet must be greater than zero."
+      return
+    end
+
+    if amount > player.balance
+      redirect_to @game, alert: "#{player.name} can't bet more than their balance."
+      return
+    end
+
+    player.update!(current_bet: amount)
+    redirect_to @game, notice: "#{player.name}'s bet set to #{helpers.number_to_currency(amount)}."
   end
 
   def deal
@@ -35,10 +65,18 @@ class GamesController < ApplicationController
       return
     end
 
+    ready, error_message = bets_ready?
+    unless ready
+      redirect_to @game, alert: error_message
+      return
+    end
+
     reset_table_state!
     dealer = @game.dealer
 
     @game.players.participants.find_each do |player|
+      player.reload
+      player.update!(balance: player.balance - player.current_bet, stood: false)
       2.times { deal_one_card_to(player) }
     end
 
@@ -114,7 +152,7 @@ class GamesController < ApplicationController
   end
 
   def build_deck_for(game)
-    dealer = game.players.create!(name: "Dealer", is_dealer: true, balance: 0)
+    dealer = game.players.create!(name: "Dealer", is_dealer: true, balance: 0, current_bet: 0)
     round = game.rounds.create!
 
     position = 0
@@ -142,6 +180,28 @@ class GamesController < ApplicationController
   def default_player_name
     next_index = @game.players.participants.count + 1
     "Player #{next_index}"
+  end
+
+  def bet_params
+    params.require(:bet).permit(:player_id, :amount)
+  end
+
+  def bets_ready?
+    players = @game.players.participants.to_a
+
+    missing = players.select { |player| player.current_bet.to_i <= 0 }
+    if missing.any?
+      names = missing.map(&:name).join(", ")
+      return [ false, "Set bets for: #{names}." ]
+    end
+
+    over = players.select { |player| player.current_bet > player.balance }
+    if over.any?
+      names = over.map(&:name).join(", ")
+      return [ false, "Bet exceeds balance for: #{names}." ]
+    end
+
+    [ true, nil ]
   end
 
   def dealer_cards_for_display
@@ -218,12 +278,11 @@ class GamesController < ApplicationController
     dealer_total = hand_total(cards_for(dealer))
 
     messages = @game.players.participants.map do |player|
-      player_total = hand_total(cards_for(player))
-      result_message(player, player_total, dealer_total)
+      settle_player!(player, dealer_total)
     end
 
     combined = messages.compact.join(" ")
-    flash[:notice] = [flash[:notice], combined].compact.join(" ").strip
+    flash[:notice] = [flash[:notice], combined.presence].compact.join(" ").strip
     @game.update!(status: "finished")
   end
 
@@ -246,20 +305,31 @@ class GamesController < ApplicationController
     end
   end
 
-  def result_message(player, player_total, dealer_total)
+  def settle_player!(player, dealer_total)
+    player.reload
+    bet = player.current_bet
+    player_total = hand_total(cards_for(player))
+    message = nil
+
     if player_total > 21
-      nil
+      # player already lost their stake when cards were dealt
     elsif dealer_total > 21
       player.record_win!
-      "#{player.name} wins! Dealer busts at #{dealer_total}."
+      player.increment!(:balance, bet * 2)
+      message = "#{player.name} wins! Dealer busts at #{dealer_total}."
     elsif player_total > dealer_total
       player.record_win!
-      "#{player.name} wins with #{player_total}."
+      player.increment!(:balance, bet * 2)
+      message = "#{player.name} wins with #{player_total}."
     elsif player_total < dealer_total
-      "#{player.name} loses with #{player_total} (dealer #{dealer_total})."
+      message = "#{player.name} loses with #{player_total} (dealer #{dealer_total})."
     else
-      "#{player.name} pushes with #{player_total}."
+      player.increment!(:balance, bet)
+      message = "#{player.name} pushes with #{player_total}."
     end
+
+    player.update!(current_bet: 0)
+    message
   end
 
   def ensure_round

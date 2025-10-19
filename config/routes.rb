@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   resources :games, only: [ :new, :create, :show ] do
     member do
       post :add_player
+      post :place_bet
       post :deal
       post :hit
       post :stand

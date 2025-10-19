@@ -53,6 +53,31 @@
                     <span class="badge text-bg-success">Wins: <%= player.wins %></span>
                   </div>
                 </div>
+                <p class="text-light-emphasis mb-2">
+                  Balance: <strong><%= number_to_currency(player.balance) %></strong>
+                  <span class="ms-3">Bet: <strong><%= number_to_currency(player.current_bet) %></strong></span>
+                </p>
+                <% if @game.status != "player_turn" %>
+                  <div class="mt-2">
+                    <% if player.balance.zero? %>
+                      <p class="text-danger mb-0">Out of chips.</p>
+                    <% else %>
+                      <%= form_with url: place_bet_game_path(@game), method: :post, scope: :bet, local: true, class: "row g-2 align-items-end" do |form| %>
+                        <%= form.hidden_field :player_id, value: player.id %>
+                        <div class="col-sm-7 col-md-6">
+                          <%= form.label :amount, "Bet amount", class: "form-label mb-1" %>
+                          <div class="input-group input-group-sm">
+                            <span class="input-group-text">$</span>
+                            <%= form.number_field :amount, value: player.current_bet, min: 1, step: 5, class: "form-control" %>
+                          </div>
+                        </div>
+                        <div class="col-sm-5 col-md-4">
+                          <%= form.submit "Set Bet", class: "btn btn-outline-primary btn-sm w-100 mt-3 mt-sm-0" %>
+                        </div>
+                      <% end %>
+                    <% end %>
+                  </div>
+                <% end %>
                 <div class="d-flex flex-wrap gap-2">
                   <% player_cards.each do |card| %>
                     <%= render partial: "card", locals: { card: card } %>

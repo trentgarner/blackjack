@@ -23,6 +23,7 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
 
     game.reload
     assert_equal ["Alice"], game.players.participants.pluck(:name)
+    assert_equal [500], game.players.participants.pluck(:balance)
   end
 
   test "deal hands two cards to each player" do
@@ -33,11 +34,18 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     post add_player_game_path(game), params: { player_name: "Bob" }
     game.reload
 
+    game.players.participants.each do |player|
+      post place_bet_game_path(game), params: { bet: { player_id: player.id, amount: 50 } }
+      player.reload
+      assert_equal 50, player.current_bet
+    end
+
     post deal_game_path(game)
     game.reload
 
     game.players.participants.each do |player|
       assert_equal 2, player.cards.where(in_deck: false).count
+      assert_equal 450, player.balance
     end
 
     dealer = game.dealer
@@ -50,10 +58,12 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     game = Game.last
     post add_player_game_path(game), params: { player_name: "Alice" }
     game.reload
+    player = game.players.participants.first
+    post place_bet_game_path(game), params: { bet: { player_id: player.id, amount: 50 } }
+    player.reload
     post deal_game_path(game)
     game.reload
 
-    player = game.players.participants.first
     post hit_game_path(game), params: { player_id: player.id }
     game.reload
     player.reload
@@ -67,11 +77,14 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     post games_path
     game = Game.last
     post add_player_game_path(game), params: { player_name: "Alice" }
+    player = game.players.participants.first
+    post place_bet_game_path(game), params: { bet: { player_id: player.id, amount: 50 } }
     post deal_game_path(game)
 
-    player = game.players.participants.first
     post stand_game_path(game), params: { player_id: player.id }
 
     assert_equal "finished", game.reload.status
+    player.reload
+    assert_equal 0, player.current_bet
   end
 end

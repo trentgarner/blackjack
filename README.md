@@ -23,6 +23,7 @@ Open http://localhost:3000 and click **Create Game**.
 1. Create a game from the landing page.
 2. On the game view:
    - add players with the form,
+   - set a wager for each player (balances start at $500 and adjust after each round),
    - press **Deal Cards** to randomly give two cards to each player and the dealer,
    - use **Hit** and **Stand** buttons under each player to play out the round.
 
@@ -35,4 +36,3 @@ Cards come from a single 52-card deck that sits on the dealer. Once the deck is 
 ```bash
 bin/rails test
 ```
-
