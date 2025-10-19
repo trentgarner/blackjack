@@ -34,9 +34,44 @@ class GamesControllerTest < ActionDispatch::IntegrationTest
     game.reload
 
     post deal_game_path(game)
+    game.reload
 
     game.players.participants.each do |player|
       assert_equal 2, player.cards.where(in_deck: false).count
     end
+
+    dealer = game.dealer
+    assert_equal 2, dealer.cards.where(in_deck: false).count
+    assert_equal "player_turn", game.reload.status
+  end
+
+  test "hit draws card and can bust player" do
+    post games_path
+    game = Game.last
+    post add_player_game_path(game), params: { player_name: "Alice" }
+    game.reload
+    post deal_game_path(game)
+    game.reload
+
+    player = game.players.participants.first
+    post hit_game_path(game), params: { player_id: player.id }
+    game.reload
+    player.reload
+    assert_operator player.cards.where(in_deck: false).count, :>=, 3
+
+    post hit_game_path(game), params: { player_id: player.id }
+    assert_includes %w[player_turn finished], game.reload.status
+  end
+
+  test "stand finishes the round" do
+    post games_path
+    game = Game.last
+    post add_player_game_path(game), params: { player_name: "Alice" }
+    post deal_game_path(game)
+
+    player = game.players.participants.first
+    post stand_game_path(game), params: { player_id: player.id }
+
+    assert_equal "finished", game.reload.status
   end
 end

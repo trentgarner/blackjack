@@ -38,6 +38,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_10_16_011408) do
     t.integer "game_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "stood", default: false, null: false
+    t.integer "wins", default: 0, null: false
     t.index ["game_id"], name: "index_players_on_game_id"
   end
 

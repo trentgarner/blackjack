@@ -1,6 +1,6 @@
 ## Blackjack Table (Junior Demo)
 
-This Rails app shows a very small Blackjack table. You can create a game, add players by name, and hand out two random cards to every player. It is intentionally simple—think of it as a to-do list that stores players instead of tasks.
+This Rails app shows a very small Blackjack table. You can create a game, add players by name, and hand out two random cards to every player.
 
 ### Requirements
 
@@ -23,7 +23,10 @@ Open http://localhost:3000 and click **Create Game**.
 1. Create a game from the landing page.
 2. On the game view:
    - add players with the form,
-   - press **Deal Cards** to randomly give two cards to each player.
+   - press **Deal Cards** to randomly give two cards to each player and the dealer,
+   - use **Hit** and **Stand** buttons under each player to play out the round.
+
+Wins are tracked per player for the current game; starting a brand-new game creates a fresh table with everyone back at zero wins.
 
 Cards come from a single 52-card deck that sits on the dealer. Once the deck is empty, start a new game.
 
@@ -33,8 +36,3 @@ Cards come from a single 52-card deck that sits on the dealer. Once the deck is 
 bin/rails test
 ```
 
-### Possible Next Steps
-
-- Track win/loss logic and scoring.
-- Allow multiple rounds without recreating the game.
-- Add betting and player balances that change after each round.
